@@ -38,7 +38,6 @@ aws iam attach-role-policy --role-name "${ROSA_CLUSTER_NAME}-alb-operator" \
 echo "--> Tag vpc / subnets for albo"
 
 ROSA_CLUSTER_SUBNET=$(rosa describe cluster -c $ROSA_CLUSTER_NAME -o json | jq -r '.aws.subnet_ids[0]')
-ROSA_CLUSTER_SUBNETS=$(rosa describe cluster -c $ROSA_CLUSTER_NAME -o json | jq -r '.aws.subnet_ids[]')
 ROSA_CLUSTER_VPC_ID=$(aws ec2 describe-subnets --subnet-ids $ROSA_CLUSTER_SUBNET --query 'Subnets[0].VpcId' --output text)
 echo "ROSA cluster VPC ID $ROSA_CLUSTER_VPC_ID"
 
