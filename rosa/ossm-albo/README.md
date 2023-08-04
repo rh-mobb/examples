@@ -1,4 +1,4 @@
-## rh-mobb/examples/common/ossm-albo
+## rh-mobb/examples/rosa/ossm-albo
 
 This is an example deployment of OpenShift Service Mesh that can be used in conjunction with the AWS Load Balancer Operator.
 
