@@ -23,7 +23,7 @@ spec:
               protocol: TCP
             - containerPort: 8443
               protocol: TCP
---- 
+---
 kind: Service
 apiVersion: v1
 metadata:
@@ -37,13 +37,15 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-scheme: internal
     service.beta.kubernetes.io/aws-load-balancer-type: external
 spec:
+  selector:
+    app: http-https-echo
   ports:
-    - name: 8080-tcp
+    - name: http
       protocol: TCP
-      port: 8080
+      port: 80
       targetPort: 8080
-    - name: 8443-tcp
+    - name: https
       protocol: TCP
-      port: 8443
+      port: 443
       targetPort: 8443
   type: LoadBalancer
