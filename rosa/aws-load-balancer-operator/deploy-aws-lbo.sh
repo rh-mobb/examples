@@ -99,7 +99,7 @@ spec:
 EOF
 
 if [ ! -z "${HAS_PROXY}" ]; then
-  Configuring egress proxy for AWS Load Balancer Operator
+  echo "--> Configuring egress proxy for AWS Load Balancer Operator"
   oc -n aws-load-balancer-operator create configmap trusted-ca
   oc -n aws-load-balancer-operator label cm trusted-ca config.openshift.io/inject-trusted-cabundle=true
   oc -n aws-load-balancer-operator patch subscription aws-load-balancer-operator --type='merge' -p '{"spec":{"config":{"env":[{"name":"TRUSTED_CA_CONFIGMAP_NAME","value":"trusted-ca"}],"volumes":[{"name":"trusted-ca","configMap":{"name":"trusted-ca"}}],"volumeMounts":[{"name":"trusted-ca","mountPath":"/etc/pki/tls/certs/albo-tls-ca-bundle.crt","subPath":"ca-bundle.crt"}]}}}'
