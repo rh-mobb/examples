@@ -17,6 +17,14 @@ SUBSTITUTED_POLICY=$(cat ${SCRIPT_DIR}/trust-policy.json | envsubst)
 echo "Trust Policy $SUBSTITUTED_POLICY"
 
 if ! ROLE_ARN=$(aws iam get-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator" --query Role.Arn --output text 2>/dev/null); then
+  read -p "The role ${ROSA_CLUSTER_NAME}-alb-operator already exists. Do you want to delete and recreate it? (y/N) " response
+  if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        aws iam delete-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator"
+        ROLE_ARN=$(aws iam create-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator" --assume-role-policy-document "$SUBSTITUTED_POLICY" --query Role.Arn --output text)
+  else 
+    echo "Check if the existing role is bound to the correct OIDC provider"
+  fi
+else  
   ROLE_ARN=$(aws iam create-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator" --assume-role-policy-document "$SUBSTITUTED_POLICY" --query Role.Arn --output text)
 fi
 echo "Role ARN: $ROLE_ARN"
@@ -99,7 +107,7 @@ spec:
 EOF
 
 if [ ! -z "${HAS_PROXY}" ]; then
-  Configuring egress proxy for AWS Load Balancer Operator
+  echo "--> Configuring egress proxy for AWS Load Balancer Operator"
   oc -n aws-load-balancer-operator create configmap trusted-ca
   oc -n aws-load-balancer-operator label cm trusted-ca config.openshift.io/inject-trusted-cabundle=true
   oc -n aws-load-balancer-operator patch subscription aws-load-balancer-operator --type='merge' -p '{"spec":{"config":{"env":[{"name":"TRUSTED_CA_CONFIGMAP_NAME","value":"trusted-ca"}],"volumes":[{"name":"trusted-ca","configMap":{"name":"trusted-ca"}}],"volumeMounts":[{"name":"trusted-ca","mountPath":"/etc/pki/tls/certs/albo-tls-ca-bundle.crt","subPath":"ca-bundle.crt"}]}}}'
