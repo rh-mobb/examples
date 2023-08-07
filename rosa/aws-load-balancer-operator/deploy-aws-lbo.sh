@@ -17,6 +17,14 @@ SUBSTITUTED_POLICY=$(cat ${SCRIPT_DIR}/trust-policy.json | envsubst)
 echo "Trust Policy $SUBSTITUTED_POLICY"
 
 if ! ROLE_ARN=$(aws iam get-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator" --query Role.Arn --output text 2>/dev/null); then
+  read -p "The role ${ROSA_CLUSTER_NAME}-alb-operator already exists. Do you want to delete and recreate it? (y/N) " response
+  if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        aws iam delete-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator"
+        ROLE_ARN=$(aws iam create-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator" --assume-role-policy-document "$SUBSTITUTED_POLICY" --query Role.Arn --output text)
+  else 
+    echo "Check if the existing role is bound to the correct OIDC endpointt"
+  fi
+else  
   ROLE_ARN=$(aws iam create-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator" --assume-role-policy-document "$SUBSTITUTED_POLICY" --query Role.Arn --output text)
 fi
 echo "Role ARN: $ROLE_ARN"
