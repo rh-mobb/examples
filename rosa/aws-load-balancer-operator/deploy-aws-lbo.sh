@@ -22,7 +22,7 @@ if ! ROLE_ARN=$(aws iam get-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator"
         aws iam delete-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator"
         ROLE_ARN=$(aws iam create-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator" --assume-role-policy-document "$SUBSTITUTED_POLICY" --query Role.Arn --output text)
   else 
-    echo "Check if the existing role is bound to the correct OIDC endpointt"
+    echo "Check if the existing role is bound to the correct OIDC provider"
   fi
 else  
   ROLE_ARN=$(aws iam create-role --role-name "${ROSA_CLUSTER_NAME}-alb-operator" --assume-role-policy-document "$SUBSTITUTED_POLICY" --query Role.Arn --output text)
